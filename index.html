@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>王汇翔 · CKA每日数据看板</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --border: #e8ecf0;
+      --primary: #ff6900;
+      --primary-light: #fff4ec;
+      --text-main: #1a1a2e;
+      --text-sub: #6b7280;
+      --text-hint: #9ca3af;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --yellow: #f59e0b;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .header-left h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .header-left .subtitle {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .update-time {
+      font-size: 12px;
+      color: var(--text-hint);
+      background: var(--card);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .update-time span { color: var(--primary); font-weight: 600; }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 4px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .status-dot.stale { background: var(--yellow); animation: none; }
+
+    /* ===== Section titles ===== */
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    /* ===== Grid ===== */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+
+    /* ===== Metric Card ===== */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+    .card .label {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .card .value.large { font-size: 24px; }
+    .card .value.medium { font-size: 20px; }
+    .card .unit {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-sub);
+      margin-left: 2px;
+    }
+    .card .meta {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 6px;
+    }
+
+    /* accent colors */
+    .card.accent-orange { border-top: 3px solid var(--primary); }
+    .card.accent-blue   { border-top: 3px solid var(--blue); }
+    .card.accent-green  { border-top: 3px solid var(--green); }
+    .card.accent-purple { border-top: 3px solid var(--purple); }
+    .card.accent-red    { border-top: 3px solid var(--red); }
+    .card.accent-yellow { border-top: 3px solid var(--yellow); }
+
+    /* highlight card */
+    .card.highlight {
+      background: var(--primary-light);
+      border: 1px solid #ffd6b0;
+    }
+    .card.highlight .value { color: var(--primary); }
+
+    /* ===== Progress bar ===== */
+    .progress-wrap { margin-top: 8px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
+    .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--primary), #ff9a40);
+      transition: width 0.8s ease;
+    }
+    .progress-fill.green { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+    .progress-fill.red   { background: linear-gradient(90deg, var(--red), #fca5a5); }
+
+    /* ===== Footer ===== */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--primary); text-decoration: none; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="header-left">
+    <h1>🐾 CKA 每日数据看板</h1>
+    <div class="subtitle">王汇翔 · 杭州 · CKA商务专员 · BD25</div>
+  </div>
+  <div class="header-right">
+    <div class="update-time">
+      <span class="status-dot" id="statusDot"></span>
+      数据日期：<span id="dataDate">——</span>&nbsp;&nbsp;更新于：<span id="updateTime">——</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: 提成 ===== -->
+<div class="section-title">💰 提成数据</div>
+<div class="grid-3">
+
+  <div class="card highlight accent-orange">
+    <div class="label">本月最终发放提成</div>
+    <div class="value" id="commFinal">——<span class="unit">元</span></div>
+    <div class="meta" id="commFinalMeta">截至当月数据</div>
+  </div>
+
+  <div class="card accent-blue">
+    <div class="label">滚动新增90天毛收提成_当月</div>
+    <div class="value large" id="commRolling">——<span class="unit">元</span></div>
+    <div class="meta">新增口径</div>
+  </div>
+
+  <div class="card accent-purple">
+    <div class="label">全量毛收提成_当月</div>
+    <div class="value large" id="commTotal">——<span class="unit">元</span></div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>全量毛收达成率</span>
+        <span id="commAchievement">——</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="commProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== SECTION 2: CKA仪表盘 GTV+毛收 ===== -->
+<div class="section-title">📈 CKA 仪表盘 · GTV &amp; 毛收人效</div>
+<div class="grid-4">
+
+  <div class="card accent-orange">
+    <div class="label">昨日新增GTV人效</div>
+    <div class="value medium" id="gtvDayNew">——<span class="unit">元</span></div>
+    <div class="meta">昨日单日</div>
+  </div>
+
+  <div class="card accent-orange">
+    <div class="label">月累计新增GTV人效</div>
+    <div class="value medium" id="gtvMonthNew">——<span class="unit">元</span></div>
+    <div class="meta">月累计</div>
+  </div>
+
+  <div class="card accent-green">
+    <div class="label">昨日新增毛收人效（新增口径）</div>
+    <div class="value medium" id="grossDayNew">——<span class="unit">元</span></div>
+    <div class="meta">昨日单日</div>
+  </div>
+
+  <div class="card accent-green">
+    <div class="label">月累计新增毛收人效（新增口径）</div>
+    <div class="value medium" id="grossMonthNew">——<span class="unit">元</span></div>
+    <div class="meta">月累计</div>
+  </div>
+
+</div>
+
+<!-- ===== SECTION 3: 运维指标 ===== -->
+<div class="section-title">🔧 运维指标</div>
+<div class="grid-2">
+
+  <div class="card accent-red">
+    <div class="label">日均断电机柜率</div>
+    <div class="value large" id="powerOutRate">——<span class="unit">%</span></div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>月累计</span>
+        <span id="powerOutRateMonth">——</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill red" id="powerOutFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="meta" style="margin-top:8px">越低越好</div>
+  </div>
+
+  <div class="card accent-yellow">
+    <div class="label">日均空仓机柜率</div>
+    <div class="value large" id="emptyRate">——<span class="unit">%</span></div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>月累计</span>
+        <span id="emptyRateMonth">——</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill red" id="emptyFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="meta" style="margin-top:8px">越低越好</div>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+  数据来源：
+  <a href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">CKA_BD提成&amp;绩效看板</a>
+  &nbsp;|&nbsp;
+  <a href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">CDD · CKA总览</a>
+  &nbsp;|&nbsp; 每日 09:00 自动更新
+</div>
+
+<script>
+const DATA_FILE = './data.json';
+
+async function loadData() {
+  try {
+    const res = await fetch(DATA_FILE + '?t=' + Date.now());
+    if (!res.ok) throw new Error('no data');
+    const d = await res.json();
+    renderDashboard(d);
+  } catch(e) {
+    console.warn('暂无数据，等待首次自动更新');
+  }
+}
+
+function renderDashboard(d) {
+  document.getElementById('dataDate').textContent = d.dataDate || '——';
+  document.getElementById('updateTime').textContent = d.updateTime || '——';
+  const dot = document.getElementById('statusDot');
+  dot.classList.toggle('stale', !!d.stale);
+
+  // 提成
+  setVal('commFinal',   fmt(d.commFinal),   '元');
+  setVal('commRolling', fmt(d.commRolling), '元');
+  setVal('commTotal',   fmt(d.commTotal),   '元');
+  const ach = d.commAchievement;
+  document.getElementById('commAchievement').textContent = ach ? (parseFloat(ach)*100).toFixed(1)+'%' : '——';
+  const achPct = ach ? Math.min(parseFloat(ach)*100, 100) : 0;
+  const fill = document.getElementById('commProgressFill');
+  fill.style.width = achPct + '%';
+  fill.className = 'progress-fill' + (achPct >= 100 ? ' green' : achPct < 50 ? ' red' : '');
+  document.getElementById('commFinalMeta').textContent = d.dataDate ? '截至 ' + d.dataDate : '截至当月';
+
+  // GTV & 毛收
+  setVal('gtvDayNew',    fmt(d.gtvDayNew),    '元');
+  setVal('gtvMonthNew',  fmt(d.gtvMonthNew),  '元');
+  setVal('grossDayNew',  fmt(d.grossDayNew),  '元');
+  setVal('grossMonthNew',fmt(d.grossMonthNew),'元');
+
+  // 运维
+  const por = d.powerOutRate;
+  setVal('powerOutRate', por !== undefined ? parseFloat(por).toFixed(2) : '——', '%');
+  document.getElementById('powerOutRateMonth').textContent = d.powerOutRateMonth ? parseFloat(d.powerOutRateMonth).toFixed(2)+'%' : '——';
+  document.getElementById('powerOutFill').style.width = por ? Math.min(parseFloat(por)*10, 100)+'%' : '0%';
+
+  const er = d.emptyRate;
+  setVal('emptyRate', er !== undefined ? parseFloat(er).toFixed(2) : '——', '%');
+  document.getElementById('emptyRateMonth').textContent = d.emptyRateMonth ? parseFloat(d.emptyRateMonth).toFixed(2)+'%' : '——';
+  document.getElementById('emptyFill').style.width = er ? Math.min(parseFloat(er)*20, 100)+'%' : '0%';
+}
+
+function setVal(id, val, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = val + (unit ? `<span class="unit">${unit}</span>` : '');
+}
+
+function fmt(v) {
+  if (v === undefined || v === null || v === '') return '——';
+  const n = parseFloat(v);
+  if (isNaN(n)) return String(v);
+  return n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+
+loadData();
+</script>
+</body>
+</html>
