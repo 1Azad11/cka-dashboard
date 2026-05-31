@@ -1,10 +1,10 @@
 {
-  "updateTime": "2026-05-31 12:34",
+  "updateTime": "2026-05-31 12:36",
   "stale": true,
   "gtvDayNew": "8407.67",
   "gtvMonthNew": "57576.54",
-  "grossDayNew": null,
-  "grossMonthNew": null,
+  "grossDayNew": "722.86",
+  "grossMonthNew": "5097.01",
   "powerOutRate": "4.37",
   "powerOutRateMonth": "5.98",
   "emptyRate": "0.79",
