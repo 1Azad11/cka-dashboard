@@ -1,17 +1,12 @@
 {
-  "updateTime": "2026-05-30 23:52",
-  "stale": false,
-  "dataDate": "20260529",
-  "commFinal": "3913.04",
-  "commRolling": "3026.47",
-  "commTotal": "1340.54",
-  "commAchievement": "0.91",
-  "gtvDayNew": "7640.07",
-  "gtvMonthNew": "49168.87",
-  "grossDayNew": "671.10",
-  "grossMonthNew": "4374.15",
-  "powerOutRate": "4.17",
-  "powerOutRateMonth": "6.03",
-  "emptyRate": "0.60",
-  "emptyRateMonth": "0.94"
+  "updateTime": "2026-05-31 12:31",
+  "stale": true,
+  "gtvDayNew": null,
+  "gtvMonthNew": null,
+  "grossDayNew": null,
+  "grossMonthNew": null,
+  "powerOutRate": null,
+  "powerOutRateMonth": null,
+  "emptyRate": null,
+  "emptyRateMonth": null
 }
