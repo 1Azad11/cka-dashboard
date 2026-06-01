@@ -10,8 +10,8 @@
   "gtvMonthNew": "66323.57",
   "grossDayNew": "717.34",
   "grossMonthNew": "5814.35",
-  "powerOutRate": null,
-  "powerOutRateMonth": null,
-  "emptyRate": null,
-  "emptyRateMonth": null
+  "powerOutRate": "4.97",
+  "powerOutRateMonth": "5.94",
+  "emptyRate": "1.19",
+  "emptyRateMonth": "0.94"
 }
