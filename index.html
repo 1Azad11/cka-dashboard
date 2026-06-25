@@ -6,30 +6,49 @@
   <title>王汇翔 · CKA每日数据看板</title>
   <style>
     :root {
-      --bg: #f5f6fa;
-      --card: #ffffff;
-      --border: #eaecf0;
+      --bg: #0f1117;
+      --bg2: #161b27;
+      --card: #1c2333;
+      --card-hover: #222d42;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.15);
       --primary: #ff6900;
-      --primary-light: #fff4ec;
-      --text-main: #111827;
-      --text-sub: #6b7280;
-      --text-hint: #9ca3af;
-      --green: #10b981;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --purple: #8b5cf6;
-      --yellow: #f59e0b;
-      --teal: #06b6d4;
-      --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-      --radius: 10px;
+      --primary-dim: rgba(255,105,0,0.15);
+      --text-main: #f0f2f8;
+      --text-sub: #8892a4;
+      --text-hint: #4e5a6e;
+      --green: #10d98a;
+      --green-dim: rgba(16,217,138,0.12);
+      --red: #ff4d6a;
+      --red-dim: rgba(255,77,106,0.12);
+      --blue: #4d9fff;
+      --blue-dim: rgba(77,159,255,0.12);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.12);
+      --yellow: #fbbf24;
+      --yellow-dim: rgba(251,191,36,0.12);
+      --teal: #2dd4bf;
+      --teal-dim: rgba(45,212,191,0.12);
+      --radius: 14px;
+      --radius-sm: 8px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
       background: var(--bg);
       color: var(--text-main);
       min-height: 100vh;
-      padding: 16px 20px 12px;
+    }
+
+    /* ===== PAGE SYSTEM ===== */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* ===== MAIN PAGE ===== */
+    #page-main {
+      padding: 20px 22px 20px;
+      background: var(--bg);
     }
 
     /* ===== Header ===== */
@@ -37,17 +56,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
     }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
     .header-left h1 {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--text-main);
       letter-spacing: -0.3px;
@@ -55,14 +68,15 @@
     .header-left .tag {
       font-size: 11px;
       color: var(--text-sub);
-      background: #f3f4f6;
-      border-radius: 4px;
-      padding: 2px 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 9px;
     }
     .header-right {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       font-size: 12px;
       color: var(--text-hint);
     }
@@ -71,11 +85,12 @@
       border-radius: 50%;
       background: var(--green);
       display: inline-block;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2.5s infinite;
       flex-shrink: 0;
     }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-    .status-dot.stale { background: var(--yellow); animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.85)} }
+    .status-dot.stale { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: none; }
     .header-right strong { color: var(--primary); font-weight: 600; }
 
     /* ===== Section label ===== */
@@ -84,307 +99,924 @@
       font-weight: 600;
       color: var(--text-hint);
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 7px;
-      margin-top: 12px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      margin-top: 18px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
     .sec-label:first-of-type { margin-top: 0; }
-    .sec-label span { font-size: 13px; }
+    .sec-label span { font-size: 14px; }
+    .sec-label .sec-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin-left: 4px;
+    }
 
     /* ===== Grid ===== */
-    .row { display: grid; gap: 10px; margin-bottom: 0; }
+    .row { display: grid; gap: 12px; }
     .row-4 { grid-template-columns: repeat(4, 1fr); }
     .row-3 { grid-template-columns: repeat(3, 1fr); }
     .row-2 { grid-template-columns: repeat(2, 1fr); }
+    .divider { height: 4px; }
 
     /* ===== Card ===== */
     .card {
       background: var(--card);
       border-radius: var(--radius);
-      padding: 13px 14px 11px;
-      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
       border: 1px solid var(--border);
       position: relative;
       overflow: hidden;
-      transition: box-shadow .15s;
+      cursor: pointer;
+      transition: all .2s ease;
+      text-decoration: none;
+      display: block;
     }
-    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card:hover {
+      background: var(--card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .card:active { transform: translateY(0); }
+
+    /* glow accent top bar */
     .card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 3px;
+      height: 2px;
       border-radius: var(--radius) var(--radius) 0 0;
     }
-    .card.c-orange::before { background: var(--primary); }
-    .card.c-blue::before   { background: var(--blue); }
-    .card.c-green::before  { background: var(--green); }
-    .card.c-purple::before { background: var(--purple); }
-    .card.c-red::before    { background: var(--red); }
-    .card.c-yellow::before { background: var(--yellow); }
-    .card.c-teal::before   { background: var(--teal); }
+    .card.c-orange::before { background: linear-gradient(90deg, var(--primary), #ff9a40); }
+    .card.c-blue::before   { background: linear-gradient(90deg, var(--blue), #93c5fd); }
+    .card.c-green::before  { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+    .card.c-purple::before { background: linear-gradient(90deg, var(--purple), #c4b5fd); }
+    .card.c-red::before    { background: linear-gradient(90deg, var(--red), #fca5a5); }
+    .card.c-yellow::before { background: linear-gradient(90deg, var(--yellow), #fde68a); }
+    .card.c-teal::before   { background: linear-gradient(90deg, var(--teal), #99f6e4); }
 
-    /* highlight */
-    .card.hl {
-      background: linear-gradient(135deg, #fff7f0 0%, #fff4ec 100%);
-      border-color: #fde0c8;
+    /* icon bg glow */
+    .card-icon {
+      position: absolute;
+      top: 12px; right: 14px;
+      font-size: 22px;
+      opacity: 0.18;
+      transition: opacity .2s;
     }
+    .card:hover .card-icon { opacity: 0.32; }
+
+    /* click hint */
+    .card-arrow {
+      position: absolute;
+      bottom: 12px; right: 14px;
+      font-size: 11px;
+      color: var(--text-hint);
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      transform: translateX(-4px);
+    }
+    .card:hover .card-arrow { opacity: 1; transform: translateX(0); }
 
     .card .lbl {
       font-size: 11.5px;
       color: var(--text-sub);
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding-right: 28px;
     }
     .card .val {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 700;
       color: var(--text-main);
       line-height: 1;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.8px;
+      font-variant-numeric: tabular-nums;
     }
-    .card.hl .val { color: var(--primary); }
+    .card.c-orange .val { color: var(--primary); }
+    .card.c-teal .val   { color: var(--teal); }
+    .card.c-blue .val   { color: var(--blue); }
+    .card.c-purple .val { color: var(--purple); }
+    .card.c-red .val    { color: var(--red); }
+    .card.c-yellow .val { color: var(--yellow); }
+    .card.c-green .val  { color: var(--green); }
+
     .card .val .u {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 400;
       color: var(--text-sub);
-      margin-left: 1px;
+      margin-left: 2px;
     }
     .card .sub {
       font-size: 11px;
       color: var(--text-hint);
-      margin-top: 5px;
+      margin-top: 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     .card .sub .badge {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: #f3f4f6;
-      color: var(--text-sub);
+      padding: 2px 6px;
+      border-radius: 4px;
     }
+    .badge-orange { background: var(--primary-dim); color: var(--primary); }
+    .badge-teal   { background: var(--teal-dim);   color: var(--teal); }
+    .badge-blue   { background: var(--blue-dim);   color: var(--blue); }
+    .badge-purple { background: var(--purple-dim); color: var(--purple); }
+    .badge-red    { background: var(--red-dim);    color: var(--red); }
+    .badge-yellow { background: var(--yellow-dim); color: var(--yellow); }
+    .badge-green  { background: var(--green-dim);  color: var(--green); }
 
     /* progress */
-    .pbar-wrap { margin-top: 7px; }
-    .pbar-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-sub); margin-bottom: 3px; }
-    .pbar { height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+    .pbar-wrap { margin-top: 10px; }
+    .pbar-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-sub); margin-bottom: 4px; }
+    .pbar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
     .pbar-fill {
       height: 100%; border-radius: 2px;
       background: linear-gradient(90deg, var(--primary), #ff9a40);
-      transition: width .8s ease;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
     }
     .pbar-fill.g { background: linear-gradient(90deg, var(--green), #6ee7b7); }
     .pbar-fill.r { background: linear-gradient(90deg, var(--red), #fca5a5); }
-    .pbar-fill.y { background: linear-gradient(90deg, var(--yellow), #fcd34d); }
-
-    /* divider row */
-    .divider { height: 10px; }
+    .pbar-fill.y { background: linear-gradient(90deg, var(--yellow), #fde68a); }
 
     /* ===== Footer ===== */
     .footer {
       text-align: center;
       font-size: 11px;
       color: var(--text-hint);
-      margin-top: 14px;
-      padding-top: 10px;
+      margin-top: 20px;
+      padding-top: 14px;
       border-top: 1px solid var(--border);
     }
-    .footer a { color: var(--primary); text-decoration: none; }
+    .footer a { color: var(--primary); text-decoration: none; opacity: 0.8; }
+    .footer a:hover { opacity: 1; }
+
+    /* ===== DETAIL PAGE ===== */
+    #page-detail {
+      min-height: 100vh;
+      background: var(--bg);
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 22px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.05);
+    }
+    .detail-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .detail-subtitle {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-left: auto;
+    }
+    .detail-body {
+      padding: 22px 22px 30px;
+    }
+
+    /* detail metric row */
+    .detail-metrics {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-metrics.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .detail-metrics.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .metric-card.c-orange::before { background: linear-gradient(90deg, var(--primary), #ff9a40); }
+    .metric-card.c-teal::before   { background: linear-gradient(90deg, var(--teal), #99f6e4); }
+    .metric-card.c-blue::before   { background: linear-gradient(90deg, var(--blue), #93c5fd); }
+    .metric-card.c-purple::before { background: linear-gradient(90deg, var(--purple), #c4b5fd); }
+    .metric-card.c-red::before    { background: linear-gradient(90deg, var(--red), #fca5a5); }
+    .metric-card.c-yellow::before { background: linear-gradient(90deg, var(--yellow), #fde68a); }
+    .metric-card.c-green::before  { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+
+    .metric-card .m-lbl {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+    .metric-card .m-val {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric-card.c-orange .m-val { color: var(--primary); }
+    .metric-card.c-teal .m-val   { color: var(--teal); }
+    .metric-card.c-blue .m-val   { color: var(--blue); }
+    .metric-card.c-purple .m-val { color: var(--purple); }
+    .metric-card.c-red .m-val    { color: var(--red); }
+    .metric-card.c-yellow .m-val { color: var(--yellow); }
+    .metric-card.c-green .m-val  { color: var(--green); }
+    .metric-card .m-val .u {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-sub);
+      margin-left: 2px;
+    }
+    .metric-card .m-sub {
+      font-size: 11px;
+      color: var(--text-hint);
+      margin-top: 8px;
+    }
+
+    /* detail info block */
+    .detail-info {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .detail-info h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .detail-info .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .detail-info .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .detail-info .info-row .k { color: var(--text-sub); }
+    .detail-info .info-row .v { color: var(--text-main); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .detail-info .info-row .v.good { color: var(--green); }
+    .detail-info .info-row .v.warn { color: var(--yellow); }
+    .detail-info .info-row .v.bad  { color: var(--red); }
+
+    /* detail links */
+    .detail-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .detail-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text-sub);
+      font-size: 13px;
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .detail-link:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-dim);
+    }
+    .detail-link .link-icon { font-size: 15px; }
+
+    /* detail desc */
+    .detail-desc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.7;
+    }
+    .detail-desc strong { color: var(--text-main); }
+
+    /* section title in detail */
+    .detail-sec {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-hint);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 20px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .detail-sec .sec-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* progress bar in detail */
+    .detail-pbar-wrap { margin-top: 14px; }
+    .detail-pbar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+    .detail-pbar {
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .detail-pbar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1.4s cubic-bezier(.4,0,.2,1);
+    }
+    .detail-pbar-fill.orange { background: linear-gradient(90deg, var(--primary), #ff9a40); }
+    .detail-pbar-fill.green  { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+    .detail-pbar-fill.red    { background: linear-gradient(90deg, var(--red), #fca5a5); }
+    .detail-pbar-fill.yellow { background: linear-gradient(90deg, var(--yellow), #fde68a); }
 
     /* ===== Responsive ===== */
     @media (max-width: 860px) {
       .row-4 { grid-template-columns: repeat(2, 1fr); }
+      .detail-metrics.cols-3 { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 600px) {
-      body { padding: 12px 12px 10px; }
+      #page-main { padding: 14px 14px 16px; }
+      .detail-body { padding: 16px 14px 24px; }
       .row-4, .row-3 { grid-template-columns: repeat(2, 1fr); }
       .row-2 { grid-template-columns: repeat(2, 1fr); }
       .header-left h1 { font-size: 15px; }
-      .card .val { font-size: 19px; }
+      .card .val { font-size: 22px; }
+      .detail-metrics.cols-2, .detail-metrics.cols-3 { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 380px) {
       .row-4, .row-3, .row-2 { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ===== Number counter animation ===== */
+    .counting { transition: none; }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <h1>🐾 CKA 每日看板</h1>
-    <span class="tag">王汇翔 · 杭州 · BD25</span>
-  </div>
-  <div class="header-right">
-    <span class="status-dot" id="statusDot"></span>
-    <span id="dataDate">——</span>
-    &nbsp;更新&nbsp;<strong id="updateTime">——</strong>
-  </div>
-</div>
+<!-- ==================== MAIN PAGE ==================== -->
+<div id="page-main" class="page active">
 
-<!-- SECTION 1: CKA仪表盘 -->
-<div class="sec-label"><span>📈</span> GTV &amp; 毛收人效</div>
-<div class="row row-4">
-
-  <div class="card c-orange">
-    <div class="lbl">昨日新增GTV人效</div>
-    <div class="val" id="gtvDayNew">——<span class="u">元</span></div>
-    <div class="sub"><span>昨日</span></div>
-  </div>
-
-  <div class="card c-orange">
-    <div class="lbl">月累计新增GTV人效</div>
-    <div class="val" id="gtvMonthNew">——<span class="u">元</span></div>
-    <div class="sub"><span>月累计</span></div>
-  </div>
-
-  <div class="card c-teal">
-    <div class="lbl">昨日新增毛收人效</div>
-    <div class="val" id="grossDayNew">——<span class="u">元</span></div>
-    <div class="sub"><span>新增口径 · 昨日</span></div>
-  </div>
-
-  <div class="card c-teal">
-    <div class="lbl">月累计新增毛收人效</div>
-    <div class="val" id="grossMonthNew">——<span class="u">元</span></div>
-    <div class="sub"><span>新增口径 · 月累计</span></div>
-  </div>
-
-</div>
-
-<div class="divider"></div>
-
-<!-- SECTION 2: 提成 -->
-<div class="sec-label"><span>💰</span> 提成数据</div>
-<div class="row row-3">
-
-  <div class="card c-orange hl">
-    <div class="lbl">本月最终发放提成</div>
-    <div class="val" id="commFinal">——<span class="u">元</span></div>
-    <div class="sub"><span id="commFinalMeta">截至当月</span></div>
-  </div>
-
-  <div class="card c-blue">
-    <div class="lbl">滚动新增90天毛收提成</div>
-    <div class="val" id="commRolling">——<span class="u">元</span></div>
-    <div class="sub"><span>新增口径 · 当月</span></div>
-  </div>
-
-  <div class="card c-purple">
-    <div class="lbl">全量毛收提成</div>
-    <div class="val" id="commTotal">——<span class="u">元</span></div>
-    <div class="pbar-wrap">
-      <div class="pbar-row">
-        <span>达成率</span>
-        <span id="commAchievement">——</span>
-      </div>
-      <div class="pbar"><div class="pbar-fill" id="commFill" style="width:0%"></div></div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>🐾 CKA 每日看板</h1>
+      <span class="tag">王汇翔 · 杭州 · BD25</span>
+    </div>
+    <div class="header-right">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="dataDate">——</span>
+      &nbsp;更新&nbsp;<strong id="updateTime">——</strong>
     </div>
   </div>
 
-</div>
+  <!-- SECTION 1: GTV & 毛收人效 -->
+  <div class="sec-label"><span>📈</span> GTV &amp; 毛收人效 <span class="sec-line"></span></div>
+  <div class="row row-4">
 
-<div class="divider"></div>
+    <div class="card c-orange" onclick="showDetail('gtv')">
+      <div class="card-icon">📈</div>
+      <div class="lbl">昨日新增GTV人效</div>
+      <div class="val" id="gtvDayNew">——<span class="u">元</span></div>
+      <div class="sub">
+        <span>昨日</span>
+        <span class="badge badge-orange">新增口径</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
 
-<!-- SECTION 3: 运维 -->
-<div class="sec-label"><span>🔧</span> 运维指标</div>
-<div class="row row-2">
-
-  <div class="card c-red">
-    <div class="lbl">日均断电机柜率</div>
-    <div class="val" id="powerOutRate">——<span class="u">%</span></div>
-    <div class="pbar-wrap">
-      <div class="pbar-row">
+    <div class="card c-orange" onclick="showDetail('gtv')">
+      <div class="card-icon">📊</div>
+      <div class="lbl">月累计新增GTV人效</div>
+      <div class="val" id="gtvMonthNew">——<span class="u">元</span></div>
+      <div class="sub">
         <span>月累计</span>
-        <span id="powerOutRateMonth">——</span>
+        <span class="badge badge-orange">新增口径</span>
       </div>
-      <div class="pbar"><div class="pbar-fill r" id="powerOutFill" style="width:0%"></div></div>
+      <div class="card-arrow">查看详情 →</div>
     </div>
-    <div class="sub" style="margin-top:5px"><span>越低越好</span></div>
+
+    <div class="card c-teal" onclick="showDetail('gross')">
+      <div class="card-icon">💹</div>
+      <div class="lbl">昨日新增毛收人效</div>
+      <div class="val" id="grossDayNew">——<span class="u">元</span></div>
+      <div class="sub">
+        <span>新增口径 · 昨日</span>
+        <span class="badge badge-teal">毛收</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
+    <div class="card c-teal" onclick="showDetail('gross')">
+      <div class="card-icon">💰</div>
+      <div class="lbl">月累计新增毛收人效</div>
+      <div class="val" id="grossMonthNew">——<span class="u">元</span></div>
+      <div class="sub">
+        <span>新增口径 · 月累计</span>
+        <span class="badge badge-teal">毛收</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
   </div>
 
-  <div class="card c-yellow">
-    <div class="lbl">日均空仓机柜率</div>
-    <div class="val" id="emptyRate">——<span class="u">%</span></div>
-    <div class="pbar-wrap">
-      <div class="pbar-row">
-        <span>月累计</span>
-        <span id="emptyRateMonth">——</span>
+  <div class="divider"></div>
+
+  <!-- SECTION 2: 提成 -->
+  <div class="sec-label"><span>💰</span> 提成数据 <span class="sec-line"></span></div>
+  <div class="row row-3">
+
+    <div class="card c-orange" onclick="showDetail('commission')">
+      <div class="card-icon">🏆</div>
+      <div class="lbl">本月最终发放提成</div>
+      <div class="val" id="commFinal">——<span class="u">元</span></div>
+      <div class="sub">
+        <span id="commFinalMeta">截至当月</span>
+        <span class="badge badge-orange">最终口径</span>
       </div>
-      <div class="pbar"><div class="pbar-fill y" id="emptyFill" style="width:0%"></div></div>
+      <div class="card-arrow">查看详情 →</div>
     </div>
-    <div class="sub" style="margin-top:5px"><span>越低越好</span></div>
+
+    <div class="card c-blue" onclick="showDetail('commission')">
+      <div class="card-icon">🔄</div>
+      <div class="lbl">滚动新增90天毛收提成</div>
+      <div class="val" id="commRolling">——<span class="u">元</span></div>
+      <div class="sub">
+        <span>新增口径 · 当月</span>
+        <span class="badge badge-blue">滚动90天</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
+    <div class="card c-purple" onclick="showDetail('commission')">
+      <div class="card-icon">🎯</div>
+      <div class="lbl">全量毛收提成</div>
+      <div class="val" id="commTotal">——<span class="u">元</span></div>
+      <div class="pbar-wrap">
+        <div class="pbar-row">
+          <span>达成率</span>
+          <span id="commAchievement">——</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill" id="commFill" style="width:0%"></div></div>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
   </div>
 
-</div>
+  <div class="divider"></div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <a href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">提成&amp;绩效看板</a>
-  &nbsp;·&nbsp;
-  <a href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">CDD · CKA总览</a>
-  &nbsp;·&nbsp; 每日 09:00 自动更新
-</div>
+  <!-- SECTION 3: 运维 -->
+  <div class="sec-label"><span>🔧</span> 运维指标 <span class="sec-line"></span></div>
+  <div class="row row-2">
+
+    <div class="card c-red" onclick="showDetail('ops')">
+      <div class="card-icon">⚡</div>
+      <div class="lbl">日均断电机柜率</div>
+      <div class="val" id="powerOutRate">——<span class="u">%</span></div>
+      <div class="pbar-wrap">
+        <div class="pbar-row">
+          <span>月累计</span>
+          <span id="powerOutRateMonth">——</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill r" id="powerOutFill" style="width:0%"></div></div>
+      </div>
+      <div class="sub" style="margin-top:7px">
+        <span>越低越好</span>
+        <span class="badge badge-red">断电</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
+    <div class="card c-yellow" onclick="showDetail('ops')">
+      <div class="card-icon">📦</div>
+      <div class="lbl">日均空仓机柜率</div>
+      <div class="val" id="emptyRate">——<span class="u">%</span></div>
+      <div class="pbar-wrap">
+        <div class="pbar-row">
+          <span>月累计</span>
+          <span id="emptyRateMonth">——</span>
+        </div>
+        <div class="pbar"><div class="pbar-fill y" id="emptyFill" style="width:0%"></div></div>
+      </div>
+      <div class="sub" style="margin-top:7px">
+        <span>越低越好</span>
+        <span class="badge badge-yellow">空仓</span>
+      </div>
+      <div class="card-arrow">查看详情 →</div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <a href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">提成&amp;绩效看板</a>
+    &nbsp;·&nbsp;
+    <a href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">CDD · CKA总览</a>
+    &nbsp;·&nbsp; 每日 09:00 自动更新
+  </div>
+
+</div><!-- /page-main -->
+
+
+<!-- ==================== DETAIL PAGE ==================== -->
+<div id="page-detail" class="page">
+
+  <div class="detail-header">
+    <a class="back-btn" onclick="showMain()">← 返回看板</a>
+    <div class="detail-title" id="detailTitle">详情</div>
+    <div class="detail-subtitle" id="detailSubtitle"></div>
+  </div>
+
+  <div class="detail-body" id="detailBody">
+    <!-- 动态渲染 -->
+  </div>
+
+</div><!-- /page-detail -->
+
 
 <script>
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
 const DATA_FILE = './data.json';
+let _data = {};
 
 async function loadData() {
   try {
     const res = await fetch(DATA_FILE + '?t=' + Date.now());
     if (!res.ok) throw new Error('no data');
-    const d = await res.json();
-    renderDashboard(d);
+    _data = await res.json();
+    renderDashboard(_data);
   } catch(e) {
-    console.warn('暂无数据');
+    console.warn('暂无数据，使用占位符');
   }
 }
 
+/* ============================================================
+   RENDER MAIN
+   ============================================================ */
 function renderDashboard(d) {
-  // header
   const dot = document.getElementById('statusDot');
   dot.classList.toggle('stale', !!d.stale);
   setText('dataDate', d.dataDate || '——');
   setText('updateTime', d.updateTime || '——');
 
-  // GTV & 毛收
-  setVal('gtvDayNew',    fmt(d.gtvDayNew),    '元');
-  setVal('gtvMonthNew',  fmt(d.gtvMonthNew),  '元');
-  setVal('grossDayNew',  fmt(d.grossDayNew),  '元');
-  setVal('grossMonthNew',fmt(d.grossMonthNew),'元');
+  animateVal('gtvDayNew',    d.gtvDayNew,    '元');
+  animateVal('gtvMonthNew',  d.gtvMonthNew,  '元');
+  animateVal('grossDayNew',  d.grossDayNew,  '元');
+  animateVal('grossMonthNew',d.grossMonthNew,'元');
 
-  // 提成
-  setVal('commFinal',   fmt(d.commFinal),   '元');
-  setVal('commRolling', fmt(d.commRolling), '元');
-  setVal('commTotal',   fmt(d.commTotal),   '元');
+  animateVal('commFinal',   d.commFinal,   '元');
+  animateVal('commRolling', d.commRolling, '元');
+  animateVal('commTotal',   d.commTotal,   '元');
+
   const ach = d.commAchievement;
+  const achPct = ach ? Math.min(parseFloat(ach) * 100, 100) : 0;
   setText('commAchievement', ach ? (parseFloat(ach)*100).toFixed(1)+'%' : '——');
-  const achPct = ach ? Math.min(parseFloat(ach)*100, 100) : 0;
   const fill = document.getElementById('commFill');
-  fill.style.width = achPct + '%';
+  setTimeout(() => { fill.style.width = achPct + '%'; }, 100);
   fill.className = 'pbar-fill' + (achPct >= 100 ? ' g' : achPct < 50 ? ' r' : '');
   setText('commFinalMeta', d.dataDate ? '截至 ' + d.dataDate : '截至当月');
 
-  // 运维
   const por = d.powerOutRate;
   setVal('powerOutRate', por != null ? parseFloat(por).toFixed(2) : '——', '%');
   setText('powerOutRateMonth', d.powerOutRateMonth ? parseFloat(d.powerOutRateMonth).toFixed(2)+'%' : '——');
-  document.getElementById('powerOutFill').style.width = por ? Math.min(parseFloat(por)*10, 100)+'%' : '0%';
+  setTimeout(() => {
+    document.getElementById('powerOutFill').style.width = por ? Math.min(parseFloat(por)*10, 100)+'%' : '0%';
+  }, 100);
 
   const er = d.emptyRate;
   setVal('emptyRate', er != null ? parseFloat(er).toFixed(2) : '——', '%');
   setText('emptyRateMonth', d.emptyRateMonth ? parseFloat(d.emptyRateMonth).toFixed(2)+'%' : '——');
-  document.getElementById('emptyFill').style.width = er ? Math.min(parseFloat(er)*20, 100)+'%' : '0%';
+  setTimeout(() => {
+    document.getElementById('emptyFill').style.width = er ? Math.min(parseFloat(er)*20, 100)+'%' : '0%';
+  }, 100);
 }
 
+/* ============================================================
+   NUMBER ANIMATION
+   ============================================================ */
+function animateVal(id, raw, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (raw == null || raw === '') { el.innerHTML = '——' + (unit ? `<span class="u">${unit}</span>` : ''); return; }
+  const target = parseFloat(raw);
+  if (isNaN(target)) { el.innerHTML = String(raw) + (unit ? `<span class="u">${unit}</span>` : ''); return; }
+  const duration = 900;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const cur = target * ease;
+    el.innerHTML = cur.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) + (unit ? `<span class="u">${unit}</span>` : '');
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ============================================================
+   PAGE ROUTING
+   ============================================================ */
+function showMain() {
+  document.getElementById('page-main').classList.add('active');
+  document.getElementById('page-detail').classList.remove('active');
+  window.scrollTo(0, 0);
+}
+
+function showDetail(type) {
+  document.getElementById('page-main').classList.remove('active');
+  document.getElementById('page-detail').classList.add('active');
+  window.scrollTo(0, 0);
+  renderDetail(type);
+}
+
+/* ============================================================
+   DETAIL RENDERERS
+   ============================================================ */
+function renderDetail(type) {
+  const d = _data;
+  const titleEl = document.getElementById('detailTitle');
+  const subtitleEl = document.getElementById('detailSubtitle');
+  const bodyEl = document.getElementById('detailBody');
+
+  if (type === 'gtv') {
+    titleEl.textContent = '📈 GTV 人效详情';
+    subtitleEl.textContent = d.dataDate ? '数据日期：' + d.dataDate : '';
+    bodyEl.innerHTML = `
+      <div class="detail-sec"><span>📊</span> 核心指标 <span class="sec-line"></span></div>
+      <div class="detail-metrics cols-2">
+        <div class="metric-card c-orange">
+          <div class="m-lbl">昨日新增GTV人效</div>
+          <div class="m-val">${fmtNum(d.gtvDayNew)}<span class="u">元</span></div>
+          <div class="m-sub">新增口径 · 昨日单日</div>
+        </div>
+        <div class="metric-card c-orange">
+          <div class="m-lbl">月累计新增GTV人效</div>
+          <div class="m-val">${fmtNum(d.gtvMonthNew)}<span class="u">元</span></div>
+          <div class="m-sub">新增口径 · 本月累计</div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>📋</span> 指标说明 <span class="sec-line"></span></div>
+      <div class="detail-desc">
+        <strong>GTV人效</strong> 衡量每位 BD 产生的交易总额效率，采用<strong>新增口径</strong>统计，即仅计算本月新签约门店产生的 GTV。<br><br>
+        昨日数据反映单日表现，月累计数据反映本月整体趋势。GTV 人效越高，代表 BD 拓展质量越好。
+      </div>
+
+      <div class="detail-sec"><span>🔗</span> 相关看板 <span class="sec-line"></span></div>
+      <div class="detail-links">
+        <a class="detail-link" href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">
+          <span class="link-icon">📊</span> 提成&amp;绩效看板
+        </a>
+        <a class="detail-link" href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">
+          <span class="link-icon">🏪</span> CDD · CKA总览
+        </a>
+      </div>
+    `;
+
+  } else if (type === 'gross') {
+    titleEl.textContent = '💹 毛收人效详情';
+    subtitleEl.textContent = d.dataDate ? '数据日期：' + d.dataDate : '';
+    bodyEl.innerHTML = `
+      <div class="detail-sec"><span>📊</span> 核心指标 <span class="sec-line"></span></div>
+      <div class="detail-metrics cols-2">
+        <div class="metric-card c-teal">
+          <div class="m-lbl">昨日新增毛收人效</div>
+          <div class="m-val">${fmtNum(d.grossDayNew)}<span class="u">元</span></div>
+          <div class="m-sub">新增口径 · 昨日单日</div>
+        </div>
+        <div class="metric-card c-teal">
+          <div class="m-lbl">月累计新增毛收人效</div>
+          <div class="m-val">${fmtNum(d.grossMonthNew)}<span class="u">元</span></div>
+          <div class="m-sub">新增口径 · 本月累计</div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>📋</span> 指标说明 <span class="sec-line"></span></div>
+      <div class="detail-desc">
+        <strong>毛收人效</strong> 衡量每位 BD 产生的毛收入效率，采用<strong>新增口径</strong>统计，即仅计算本月新签约门店产生的毛收入。<br><br>
+        毛收 = GTV × 费率，是衡量 BD 实际创收能力的核心指标。月累计毛收人效直接影响当月提成计算。
+      </div>
+
+      <div class="detail-sec"><span>🔗</span> 相关看板 <span class="sec-line"></span></div>
+      <div class="detail-links">
+        <a class="detail-link" href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">
+          <span class="link-icon">📊</span> 提成&amp;绩效看板
+        </a>
+        <a class="detail-link" href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">
+          <span class="link-icon">🏪</span> CDD · CKA总览
+        </a>
+      </div>
+    `;
+
+  } else if (type === 'commission') {
+    const ach = d.commAchievement;
+    const achPct = ach ? Math.min(parseFloat(ach) * 100, 100) : 0;
+    const achStr = ach ? (parseFloat(ach)*100).toFixed(1) + '%' : '——';
+    const achColor = achPct >= 100 ? 'green' : achPct >= 60 ? 'orange' : 'red';
+
+    titleEl.textContent = '💰 提成数据详情';
+    subtitleEl.textContent = d.dataDate ? '截至 ' + d.dataDate : '';
+    bodyEl.innerHTML = `
+      <div class="detail-sec"><span>📊</span> 提成明细 <span class="sec-line"></span></div>
+      <div class="detail-metrics cols-3">
+        <div class="metric-card c-orange">
+          <div class="m-lbl">本月最终发放提成</div>
+          <div class="m-val">${fmtNum(d.commFinal)}<span class="u">元</span></div>
+          <div class="m-sub">最终口径 · 本月</div>
+        </div>
+        <div class="metric-card c-blue">
+          <div class="m-lbl">滚动新增90天毛收提成</div>
+          <div class="m-val">${fmtNum(d.commRolling)}<span class="u">元</span></div>
+          <div class="m-sub">新增口径 · 滚动90天</div>
+        </div>
+        <div class="metric-card c-purple">
+          <div class="m-lbl">全量毛收提成</div>
+          <div class="m-val">${fmtNum(d.commTotal)}<span class="u">元</span></div>
+          <div class="m-sub">全量口径 · 本月</div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>🎯</span> 达成情况 <span class="sec-line"></span></div>
+      <div class="detail-info">
+        <h3>📈 提成达成率</h3>
+        <div class="info-row">
+          <span class="k">全量毛收提成达成率</span>
+          <span class="v ${achColor === 'green' ? 'good' : achColor === 'red' ? 'bad' : 'warn'}">${achStr}</span>
+        </div>
+        <div class="detail-pbar-wrap">
+          <div class="detail-pbar-label">
+            <span>0%</span><span>目标 100%</span>
+          </div>
+          <div class="detail-pbar">
+            <div class="detail-pbar-fill ${achColor}" id="detailCommFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>📋</span> 口径说明 <span class="sec-line"></span></div>
+      <div class="detail-desc">
+        <strong>最终发放提成</strong>：经过结算系统最终确认的当月提成金额，为实际到账数据。<br><br>
+        <strong>滚动新增90天毛收提成</strong>：基于新增口径，统计近90天内新签门店产生的毛收对应提成，反映近期拓展质量。<br><br>
+        <strong>全量毛收提成</strong>：基于全量口径（含存量门店）的毛收提成，达成率 = 实际/目标。
+      </div>
+
+      <div class="detail-sec"><span>🔗</span> 相关看板 <span class="sec-line"></span></div>
+      <div class="detail-links">
+        <a class="detail-link" href="https://bi.sankuai.com/v2/dashboard/235373" target="_blank">
+          <span class="link-icon">📊</span> 提成&amp;绩效看板
+        </a>
+      </div>
+    `;
+    // animate progress bar
+    setTimeout(() => {
+      const el = document.getElementById('detailCommFill');
+      if (el) el.style.width = achPct + '%';
+    }, 100);
+
+  } else if (type === 'ops') {
+    const por = d.powerOutRate != null ? parseFloat(d.powerOutRate) : null;
+    const er  = d.emptyRate    != null ? parseFloat(d.emptyRate)    : null;
+    const porM = d.powerOutRateMonth != null ? parseFloat(d.powerOutRateMonth) : null;
+    const erM  = d.emptyRateMonth    != null ? parseFloat(d.emptyRateMonth)    : null;
+
+    const porPct  = por  != null ? Math.min(por  * 10, 100) : 0;
+    const erPct   = er   != null ? Math.min(er   * 20, 100) : 0;
+    const porMPct = porM != null ? Math.min(porM * 10, 100) : 0;
+    const erMPct  = erM  != null ? Math.min(erM  * 20, 100) : 0;
+
+    titleEl.textContent = '🔧 运维指标详情';
+    subtitleEl.textContent = d.dataDate ? '数据日期：' + d.dataDate : '';
+    bodyEl.innerHTML = `
+      <div class="detail-sec"><span>📊</span> 核心指标 <span class="sec-line"></span></div>
+      <div class="detail-metrics cols-2">
+        <div class="metric-card c-red">
+          <div class="m-lbl">日均断电机柜率</div>
+          <div class="m-val">${por != null ? por.toFixed(2) : '——'}<span class="u">%</span></div>
+          <div class="m-sub">昨日 · 越低越好</div>
+        </div>
+        <div class="metric-card c-yellow">
+          <div class="m-lbl">日均空仓机柜率</div>
+          <div class="m-val">${er != null ? er.toFixed(2) : '——'}<span class="u">%</span></div>
+          <div class="m-sub">昨日 · 越低越好</div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>📅</span> 月累计对比 <span class="sec-line"></span></div>
+      <div class="detail-info">
+        <h3>⚡ 断电机柜率</h3>
+        <div class="info-row">
+          <span class="k">昨日断电率</span>
+          <span class="v ${por != null && por > 10 ? 'bad' : por != null && por > 5 ? 'warn' : 'good'}">${por != null ? por.toFixed(2)+'%' : '——'}</span>
+        </div>
+        <div class="info-row">
+          <span class="k">月累计断电率</span>
+          <span class="v ${porM != null && porM > 10 ? 'bad' : porM != null && porM > 5 ? 'warn' : 'good'}">${porM != null ? porM.toFixed(2)+'%' : '——'}</span>
+        </div>
+        <div class="detail-pbar-wrap">
+          <div class="detail-pbar-label"><span>0%</span><span>参考上限 10%</span></div>
+          <div class="detail-pbar">
+            <div class="detail-pbar-fill red" id="detailPorFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-info">
+        <h3>📦 空仓机柜率</h3>
+        <div class="info-row">
+          <span class="k">昨日空仓率</span>
+          <span class="v ${er != null && er > 5 ? 'bad' : er != null && er > 2 ? 'warn' : 'good'}">${er != null ? er.toFixed(2)+'%' : '——'}</span>
+        </div>
+        <div class="info-row">
+          <span class="k">月累计空仓率</span>
+          <span class="v ${erM != null && erM > 5 ? 'bad' : erM != null && erM > 2 ? 'warn' : 'good'}">${erM != null ? erM.toFixed(2)+'%' : '——'}</span>
+        </div>
+        <div class="detail-pbar-wrap">
+          <div class="detail-pbar-label"><span>0%</span><span>参考上限 5%</span></div>
+          <div class="detail-pbar">
+            <div class="detail-pbar-fill yellow" id="detailErFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-sec"><span>📋</span> 指标说明 <span class="sec-line"></span></div>
+      <div class="detail-desc">
+        <strong>断电机柜率</strong>：统计周期内发生断电的机柜数 / 总机柜数，反映设备供电稳定性。断电会直接影响用户体验和 GTV。<br><br>
+        <strong>空仓机柜率</strong>：统计周期内空仓（无充电宝可借）的机柜数 / 总机柜数，反映运营补货及时性。空仓率高会导致借出率下降。
+      </div>
+
+      <div class="detail-sec"><span>🔗</span> 相关看板 <span class="sec-line"></span></div>
+      <div class="detail-links">
+        <a class="detail-link" href="https://cdd.sankuai.com/business-dashboard/page/wbr-cka-overview" target="_blank">
+          <span class="link-icon">🏪</span> CDD · CKA总览
+        </a>
+      </div>
+    `;
+    setTimeout(() => {
+      const pf = document.getElementById('detailPorFill');
+      const ef = document.getElementById('detailErFill');
+      if (pf) pf.style.width = porPct + '%';
+      if (ef) ef.style.width = erPct + '%';
+    }, 100);
+  }
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
 function setVal(id, val, unit) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -400,7 +1032,16 @@ function fmt(v) {
   if (isNaN(n)) return String(v);
   return n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
 }
+function fmtNum(v) {
+  if (v == null || v === '') return '——';
+  const n = parseFloat(v);
+  if (isNaN(n)) return String(v);
+  return n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
 
+/* ============================================================
+   INIT
+   ============================================================ */
 loadData();
 </script>
 </body>
